@@ -1,29 +1,13 @@
-from fastapi import FastAPI, HTTPException, Query
+import random
+from fastapi import FastAPI, HTTPException
 from pymongo import AsyncMongoClient
 from pymongo.read_preferences import Primary, SecondaryPreferred
 from pymongo.write_concern import WriteConcern
-from pydantic import BaseModel, Field
-from typing import Annotated
+import string
 
-class WriteParams(BaseModel):
-    model_config =  {"extra": "forbid"}
+def random_string(length: int) -> str:
+    return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
-    vin: str = Field(max_length = 10)
-    county: str = Field()
-    city: str = Field()
-    state: str = Field(max_length = 2, to_upper=True)
-    postal_code: str = Field(min_length=5,max_length=5)
-    model_year: str = Field(min_length=4,max_length=4)
-    make: str = Field()
-    model: str = Field()
-    elec_vehicle_type: str = Field()
-    cafv_eligibility: str = Field()
-    ev_rng: str = Field()
-    lgs_dist: str = Field()
-    dol_veh_id: str = Field()
-    veh_loc: str = Field()
-    eu: str = Field()
-    census_track: str = Field()
 
 uri = "mongodb+srv://jtrej7_db_user:577F6F6fKw8YEDTm@cluster0.eihhejx.mongodb.net/?appName=Cluster0"
 client = AsyncMongoClient(uri)
@@ -42,26 +26,26 @@ def read_root():
 
 # Fast but Unsafe Write
 @app.post("/insert-fast", status_code=201)
-async def fast_write_ev(write_query: Annotated[WriteParams, Query()]):
+async def fast_write_ev():
     try:
         vehicles_fast_write = vehicles.with_options(write_concern=WriteConcern(w=1))
         result = await vehicles_fast_write.insert_one({
-                "VIN (1-10)": write_query.vin,
-                "County": write_query.county,
-                "City": write_query.city,
-                "State": write_query.state,
-                "Postal Code": write_query.postal_code,
-                "Model Year": write_query.model_year,
-                "Make": write_query.make,
-                "Model": write_query.model,
-                "Electric Vehicle Type": write_query.elec_vehicle_type,
-                "Clean Alternative Fuel Vehicle (CAFV) Eligibility": write_query.cafv_eligibility,
-                "Electric Range": write_query.ev_rng,
-                "Legislative District": write_query.lgs_dist,
-                "DOL Vehicle ID": write_query.dol_veh_id,
-                "Vehicle Location": write_query.veh_loc,
-                "Electric Utility": write_query.eu,
-                "2020 Census Tract": write_query.census_track,
+                "VIN (1-10)": random_string(10),
+                "County": random_string(50),
+                "City": random_string(50),
+                "State": random_string(2),
+                "Postal Code": random_string(5),
+                "Model Year": random_string(4),
+                "Make": random_string(50),
+                "Model": random_string(50),
+                "Electric Vehicle Type": random_string(50),
+                "Clean Alternative Fuel Vehicle (CAFV) Eligibility": random_string(50),
+                "Electric Range": random_string(50),
+                "Legislative District": random_string(50),
+                "DOL Vehicle ID": random_string(50),
+                "Vehicle Location": random_string(50),
+                "Electric Utility": random_string(50),
+                "2020 Census Tract": random_string(50),
             })
         assert result.inserted_id is not None
     except Exception as e:
@@ -69,26 +53,26 @@ async def fast_write_ev(write_query: Annotated[WriteParams, Query()]):
         
 # Highyl Durable Write
 @app.post("/insert-safe", status_code=201)
-async def safe_write_ev(write_query: Annotated[WriteParams, Query()]):
+async def safe_write_ev():
     try:
         vehicles_safe_write = vehicles.with_options(write_concern=WriteConcern(w="majority"))
         result = await vehicles_safe_write.insert_one({
-                "VIN (1-10)": write_query.vin,
-                "County": write_query.county,
-                "City": write_query.city,
-                "State": write_query.state,
-                "Postal Code": write_query.postal_code,
-                "Model Year": write_query.model_year,
-                "Make": write_query.make,
-                "Model": write_query.model,
-                "Electric Vehicle Type": write_query.elec_vehicle_type,
-                "Clean Alternative Fuel Vehicle (CAFV) Eligibility": write_query.cafv_eligibility,
-                "Electric Range": write_query.ev_rng,
-                "Legislative District": write_query.lgs_dist,
-                "DOL Vehicle ID": write_query.dol_veh_id,
-                "Vehicle Location": write_query.veh_loc,
-                "Electric Utility": write_query.eu,
-                "2020 Census Tract": write_query.census_track,
+                "VIN (1-10)": random_string(10),
+                "County": random_string(50),
+                "City": random_string(50),
+                "State": random_string(2),
+                "Postal Code": random_string(5),
+                "Model Year": random_string(4),
+                "Make": random_string(50),
+                "Model": random_string(50),
+                "Electric Vehicle Type": random_string(50),
+                "Clean Alternative Fuel Vehicle (CAFV) Eligibility": random_string(50),
+                "Electric Range": random_string(50),
+                "Legislative District": random_string(50),
+                "DOL Vehicle ID": random_string(50),
+                "Vehicle Location": random_string(50),
+                "Electric Utility": random_string(50),
+                "2020 Census Tract": random_string(50),
             })
         assert result.inserted_id is not None
     except Exception as e:
