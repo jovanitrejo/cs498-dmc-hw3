@@ -1,64 +1,14 @@
-from pydantic import BaseModel, Field
 import requests
 import time
-import random
-import string
 import statistics
 
 server_uri: str = "http://34.59.113.0:8000"
 
-
-class WriteParams(BaseModel):
-    model_config = {"extra": "forbid"}
-
-    vin: str = Field(max_length=10)
-    county: str
-    city: str
-    state: str = Field(min_length=2, max_length=2)
-    postal_code: str = Field(min_length=5, max_length=5)
-    model_year: str = Field(min_length=4, max_length=4)
-    make: str
-    model: str
-    elec_vehicle_type: str
-    cafv_eligibility: str
-    ev_rng: str
-    lgs_dist: str
-    dol_veh_id: str
-    veh_loc: str
-    eu: str
-    census_track: str
-
-
-# Generate random strings for testing
-def random_string(length: int) -> str:
-    return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
-
-# Generate random parameters for testing, uses random_string() to create random data for each field in WriteParams. The lengths of the strings are chosen to match the constraints defined in the WriteParams model.
-def generate_random_params() -> WriteParams:
-    return WriteParams(
-        vin=random_string(10),
-        county=random_string(10),
-        city=random_string(10),
-        state=random_string(2),
-        postal_code=random_string(5),
-        model_year=random_string(4),
-        make=random_string(10),
-        model=random_string(10),
-        elec_vehicle_type=random_string(10),
-        cafv_eligibility=random_string(10),
-        ev_rng=random_string(10),
-        lgs_dist=random_string(10),
-        dol_veh_id=random_string(10),
-        veh_loc=random_string(10),
-        eu=random_string(10),
-        census_track=random_string(10),
-    )
-
 # sends POST request to specified endpoint (/insert-fast or /insert-safe) with the given parameters 
 # and measures the time taken for the request to complete.
-def timed_post(session: requests.Session, endpoint: str, params: WriteParams) -> float | None:
+def timed_post(session: requests.Session, endpoint: str) -> float | None:
     start_time = time.perf_counter()
-    response = session.post(f"{server_uri}{endpoint}", params=params.model_dump())
+    response = session.post(f"{server_uri}{endpoint}")
     end_time = time.perf_counter()
 
     if response.status_code != 201:
@@ -81,8 +31,7 @@ def summarize_times(label: str, times: list[float]) -> None:
 # Performs a series of warm-up requests to the specified endpoint to ensure that the server is ready and any initial overhead is minimized 
 def warmup(session: requests.Session, endpoint: str) -> None:
     for _ in range(10):
-        params = generate_random_params()
-        session.post(f"{server_uri}{endpoint}", params=params.model_dump())
+        session.post(f"{server_uri}{endpoint}")
 
 # Main function performing the test for both the fast and durable endpoints.
 def test_writes(num_requests: int = 50) -> None:
@@ -99,13 +48,11 @@ def test_writes(num_requests: int = 50) -> None:
         # alternating between two endpoints for each request
         # generating random parameters for writes.
         for i in range(num_requests):
-            fast_params = generate_random_params()
-            fast_time = timed_post(session, "/insert-fast", fast_params)
+            fast_time = timed_post(session, "/insert-fast")
             if fast_time is not None:
                 fast_times.append(fast_time)
 
-            safe_params = generate_random_params()
-            safe_time = timed_post(session, "/insert-safe", safe_params)
+            safe_time = timed_post(session, "/insert-safe")
             if safe_time is not None:
                 safe_times.append(safe_time)
 
