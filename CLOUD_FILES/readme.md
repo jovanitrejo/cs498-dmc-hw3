@@ -1,0 +1,2 @@
+The following directory contains all files used on the cloud server for this homework assignment, which included creating the FastAPI application and endpoints.
+Also includes the `requirements.txt` file with the packages used for it.
