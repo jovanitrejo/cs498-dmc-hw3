@@ -1,7 +1,6 @@
 import random
 from fastapi import FastAPI, HTTPException
-from pymongo import AsyncMongoClient
-from pymongo.read_preferences import Primary, SecondaryPreferred
+from pymongo import AsyncMongoClient, ReadPreference
 from pymongo.write_concern import WriteConcern
 import string
 
@@ -82,7 +81,7 @@ async def safe_write_ev():
 @app.get("/count-tesla-primary")
 async def get_tesla_counts():
     try:
-        vehicles_strong = vehicles.with_options(read_preference=Primary())
+        vehicles_strong = vehicles.with_options(read_preference=ReadPreference.PRIMARY)
         count = await vehicles_strong.count_documents({"Make": "TESLA"})
         return {
             "count": count
@@ -94,7 +93,7 @@ async def get_tesla_counts():
 @app.get("/count-bmw-secondary")
 async def get_bmw_counts():
     try:
-        vehicles_weak = vehicles.with_options(read_preference=SecondaryPreferred())
+        vehicles_weak = vehicles.with_options(read_preference=ReadPreference.SECONDARY_PREFERRED)
         count = await vehicles_weak.count_documents({"Make": "BMW"})
         return { "count": count }
     except Exception as e:
