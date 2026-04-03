@@ -1,6 +1,7 @@
 import random
 from fastapi import FastAPI, HTTPException
 from pymongo import AsyncMongoClient, ReadPreference
+from dotenv import load_dotenv
 from pymongo.write_concern import WriteConcern
 import string
 import os
@@ -8,7 +9,7 @@ import os
 def random_string(length: int) -> str:
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
-
+load_dotenv()
 uri = os.getenv("MONGO_DB_STR")
 client = AsyncMongoClient(uri)
 
