@@ -1,7 +1,7 @@
 # Script to load Electric Vehicle CSV data into MongoDB using batch insertion
 import csv
 from pymongo import MongoClient
-from python_dotenv import load_dotenv	
+from dotenv import load_dotenv	
 import os
 
 # MongoDB connection

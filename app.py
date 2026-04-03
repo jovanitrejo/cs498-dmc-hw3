@@ -3,12 +3,13 @@ from fastapi import FastAPI, HTTPException
 from pymongo import AsyncMongoClient, ReadPreference
 from pymongo.write_concern import WriteConcern
 import string
+import os
 
 def random_string(length: int) -> str:
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
 
-uri = "mongodb+srv://jtrej7_db_user:577F6F6fKw8YEDTm@cluster0.eihhejx.mongodb.net/?appName=Cluster0"
+uri = os.getenv("MONGO_DB_STR")
 client = AsyncMongoClient(uri)
 
 try:
